@@ -1,9 +1,8 @@
 
 package JavaFXApplication2;
 
-
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.text.Font;
-import java.io.File;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,7 +21,8 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Label;
-
+import javafx.scene.control.RadioButton;
+import java.util.Random;
 
 public class JavaFXApplication2 extends Application {
     
@@ -30,19 +30,21 @@ public class JavaFXApplication2 extends Application {
     boolean gameOverscreen=false;
 
     Toolkit toolkit;
-    int ammoleft=8;    
+    int ammoleft=7;    
     public Media spawnZombieSound = new Media(getClass().getResource("Resources/audio/spawnzombiesound.mp3").toString());
     MediaPlayer playZombieSpawnSound =new MediaPlayer(spawnZombieSound);
     
     
     
     private Character createZombie(int i){
-        Character s = new Character((90+i*100),300+i*10,30,30,"zombie",Color.RED);
-        Image gameOverimage = new Image(getClass().getResource("Resources/images/Zombie.png").toString());
-        ImagePattern gameOverimagePattern = new ImagePattern(gameOverimage);
-        s.setFill(gameOverimagePattern);
+        Character s = new Character((90+i*100),5+i*10,30,30,"zombie",Color.RED);
+        Image ZombieImage = new Image(getClass().getResource("Resources/images/Zombie.png").toString());
+        ImagePattern ZombieimagePattern = new ImagePattern(ZombieImage);
+        s.setFill(ZombieimagePattern);
         return s;
         }
+    
+    Label scoreLabel = new Label("You Survived "+Integer.toString(Zombies.roundNumber-1)+" Rounds");
     
     private void gameOver(){
         root.getChildren().clear();
@@ -51,11 +53,31 @@ public class JavaFXApplication2 extends Application {
         gameOver.setFill(gameOverimagePattern);
         root.getChildren().add(gameOver);
         root.getChildren().add(restart);
+        root.getChildren().add(scoreLabel);
+        scoreLabel.setTranslateX(WIDTH/2-150);
+        scoreLabel.setTranslateY(HEIGHT/2+50);
+        scoreLabel.setFont(font);
         restart.setLayoutX(WIDTH/2-30);
         root.getChildren().add(exitGame);
         gameOverscreen=true;
         }
-
+    Random rnd = new Random();
+    //Character(,int y,int w, int h,String type, Color color)
+    Character character;
+    void spawnTrap(){
+        int x=rnd.nextInt(WIDTH);
+        int y=rnd.nextInt(HEIGHT);
+        character=new Character(x,y,30,30,"Trap",Color.BLACK);
+        double playerX=player.getTranslateX();
+        double playerY=player.getTranslateY();
+        while (character.getBoundsInParent().intersects(player.getBoundsInParent())){
+            x=rnd.nextInt(WIDTH);
+            y=rnd.nextInt(HEIGHT);
+            character=new Character(x,y,30,30,"Trap",Color.BLACK);
+            }
+            root.getChildren().add(character);
+        
+    }
     
     public Media StartMenuMusic = new Media(getClass().getResource("Resources/audio/StartMenuMusic.wav").toString());
     MediaPlayer playStartMenuMusic =new MediaPlayer(StartMenuMusic);
@@ -65,19 +87,57 @@ public class JavaFXApplication2 extends Application {
     Image gamePlayGround = new Image(getClass().getResource("Resources/images/gameBackGround.jpg").toString());
     ImagePattern gamePlayGroundPattern = new ImagePattern(gamePlayGround);
     
-        
+    RadioButton easy = new RadioButton();
+    RadioButton normal = new RadioButton();
+    RadioButton hard = new RadioButton();
+    final ToggleGroup group = new ToggleGroup();
+    
+    Label easyLabel = new Label("easy");
+    Label normalLabel = new Label("normal");
+    Label hardLabel = new Label("hard");
+    
+    Font font = Font.font("Verdana",20);
+    
     private void StartMenu(){
         root.getChildren().clear();
         Image StartMenuImage = new Image(getClass().getResource("Resources/images/StartMenuImage.png").toString());
         
         ImagePattern StartMenuImagePattern = new ImagePattern(StartMenuImage);
         StartMenuScreen.setFill(StartMenuImagePattern);
+        easy.setToggleGroup(group);
+        normal.setToggleGroup(group);
+        hard.setToggleGroup(group);
         root.getChildren().add(StartMenuScreen);
         root.getChildren().add(StartGame);
-        StartGame.setLayoutX(WIDTH/2);
-        StartGame.setLayoutY(HEIGHT/2);
+        root.getChildren().add(easy);
+        root.getChildren().add(easyLabel);
+        root.getChildren().add(normal);
+        root.getChildren().add(normalLabel);
+        root.getChildren().add(hard);
+        root.getChildren().add(hardLabel);
+        easy.setTranslateX(WIDTH/2-100);
+        easy.setTranslateY(HEIGHT/2);
+        easyLabel.setTranslateX(WIDTH/2-250);
+        easyLabel.setTranslateY(HEIGHT/2);
+        easyLabel.setTextFill(Color.WHITE);
+        easyLabel.setFont(font);
+        normal.setTranslateX(WIDTH/2-100);
+        normal.setTranslateY(HEIGHT/2+40);
+        normalLabel.setFont(font);
+        normalLabel.setTextFill(Color.WHITE);
+        normalLabel.setTranslateX(WIDTH/2-250);
+        normalLabel.setTranslateY(HEIGHT/2+40);
+        hard.setTranslateX(WIDTH/2-100);
+        hard.setTranslateY(HEIGHT/2+80);
+        hardLabel.setTextFill(Color.WHITE);
+        hardLabel.setFont(font);
+        hardLabel.setTranslateX(WIDTH/2-250);
+        hardLabel.setTranslateY(HEIGHT/2+80);
+        StartGame.setLayoutX(WIDTH/2+100);
+        StartGame.setLayoutY(HEIGHT/2+50);
         StartMenuOn = true;
         playStartMenuMusic.play();
+        
         }
     
     boolean StartMenuOn=false;
@@ -97,7 +157,7 @@ public class JavaFXApplication2 extends Application {
     Button exitGame = new Button("Quit");
     
     private List<Character> characters(){
-        return root.getChildren().stream().filter(n -> !ammoleftlabel.equals(n) & !gameBackground.equals(n)).map(n -> (Character)n).collect(Collectors.toList());
+        return root.getChildren().stream().filter(n -> !exitGame.equals(n)&!restart.equals(n)& !ammoleftlabel.equals(n) & !gameBackground.equals(n)).map(n -> (Character)n).collect(Collectors.toList());
         }
     
     
@@ -105,7 +165,7 @@ public class JavaFXApplication2 extends Application {
         
         root.setPrefSize(WIDTH,HEIGHT);
         root.getChildren().add(player);
-        Font font = Font.font("Verdana",20);
+        //Font font = Font.font("Verdana",20);
         ammoleftlabel.setMaxSize(50, 100);
         ammoleftlabel.setTranslateX(WIDTH-100);
         ammoleftlabel.setTranslateY(HEIGHT-50);
@@ -132,7 +192,10 @@ public class JavaFXApplication2 extends Application {
         for(int i=0;i<(5+Zombies.roundNumber);i++){
             Character s = createZombie(i);
             root.getChildren().add(s);
-            }
+        }
+        for (int i=0;i<Zombies.roundNumber;i++){
+            spawnTrap();
+        }
         playZombieSpawnSound.play();
     }
     
@@ -150,6 +213,7 @@ public class JavaFXApplication2 extends Application {
             gameOver();
             return;
             }
+        if (gameOverscreen == true){return;}
         
         PlayerLocation.xx=player.getTranslateX();
         PlayerLocation.yy=player.getTranslateY();
@@ -196,7 +260,21 @@ public class JavaFXApplication2 extends Application {
                                 }
                             }
                         }
-                    };
+                    break;
+                    }
+                case "Trap":{
+                    if (s.getBoundsInParent().intersects(player.getBoundsInParent()))
+                        {
+                        //s.dead=true;
+                        //root.getChildren().remove(s);
+                        //s=null;
+                        player.dead=true;
+                        
+                        }
+                
+                
+                }
+                    
                 }
         });
         
@@ -276,6 +354,15 @@ public class JavaFXApplication2 extends Application {
         });
         StartGame.setOnAction(e -> {
             root.getChildren().clear();
+            if (easy.isSelected()){
+                Zombies.difficultyLevel=1;
+            }
+            if (normal.isSelected()){
+                Zombies.difficultyLevel=2;
+            }
+            if (hard.isSelected()){
+                Zombies.difficultyLevel=3;
+            }
             player = new Character(300,500,40,40,"player",Color.BLUE);
             root.getChildren().add(gameBackground);
             root.getChildren().add(player);

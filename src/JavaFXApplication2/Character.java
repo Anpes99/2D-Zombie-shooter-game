@@ -2,10 +2,9 @@
 package JavaFXApplication2;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
+import java.util.Random;
 
 public class Character extends Rectangle{
-    
     
     boolean dead=false;
     private double mousex;
@@ -19,6 +18,9 @@ public class Character extends Rectangle{
         
     final String type;
         
+    Random rnd = new Random();
+    double speedRandomizer;
+        
     public double getAge(){
             Age = (System.nanoTime()-StartTime)*0.000000001;
             return Age;
@@ -31,10 +33,11 @@ public class Character extends Rectangle{
         setTranslateX(x);
         setTranslateY(y);
         this.StartTime = System.nanoTime();
-        
+        this.speedRandomizer = rnd.nextDouble();
+        while (this.speedRandomizer < 0.004 | this.speedRandomizer > 0.006){this.speedRandomizer = rnd.nextDouble();}
     }
         
-    
+
     Character(int x,int y,int w, int h,String type, Color color,double xx,double yy){
         super(w,h,color);
         this.type = type;
@@ -43,6 +46,7 @@ public class Character extends Rectangle{
         mousex = xx;
         mousey = yy;
         this.StartTime = System.nanoTime();
+  
     }
     
     public double returnMouseX(){
@@ -90,26 +94,50 @@ public class Character extends Rectangle{
         
     }
     
+    private boolean clockRunning =false;
+    private long startClocktime;
+    private long timeElapsed;
+    private int movingRight;
+    
+    
+    
     void moveZombie(){
         
         playerx=PlayerLocation.xx;
         playery=PlayerLocation.yy;
         
+        
+        
+        if (clockRunning==false){
+            movingRight = movingRight * (-1);
+            startClocktime = System.nanoTime();
+            clockRunning = true;
+        }
+        timeElapsed = System.nanoTime()-startClocktime;
+        if (clockRunning==true){
+            //setTranslateX(getTranslateX() + 50*movingRight);
+            if (timeElapsed*0.000000001>1.5){
+            clockRunning=false;
+        }
+        }
+        
+        
+        
         if (playerx>getTranslateX() & playery>getTranslateY()){
-            setTranslateX(getTranslateX()+(playerx-getTranslateX())*0.005);
-            setTranslateY(getTranslateY()+(playery-getTranslateY())*0.005);
+            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*Zombies.difficultyLevel);
         }
         else if (playerx<getTranslateX() & playery>getTranslateY()){
-            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*0.005);
-            setTranslateY(getTranslateY()+(playery-getTranslateY())*0.005);
+            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*Zombies.difficultyLevel);
         }
         else if (playerx>getTranslateX() & playery<getTranslateY()){
-            setTranslateX(getTranslateX()+(playerx-getTranslateX())*0.005);
-            setTranslateY(getTranslateY()-(getTranslateY()-playery)*0.005);
+            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*Zombies.difficultyLevel);
         }
         else if (playerx<getTranslateX() & playery<getTranslateY()){
-            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*0.005);
-            setTranslateY(getTranslateY()-(getTranslateY()-playery)*0.005);
+            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*Zombies.difficultyLevel);
         }
         
     }

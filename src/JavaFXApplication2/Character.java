@@ -124,20 +124,20 @@ public class Character extends Rectangle{
         
         
         if (playerx>getTranslateX() & playery>getTranslateY()){
-            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*Zombies.difficultyLevel);
-            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*GameData.difficultyLevel);
+            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*GameData.difficultyLevel);
         }
         else if (playerx<getTranslateX() & playery>getTranslateY()){
-            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*Zombies.difficultyLevel);
-            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*GameData.difficultyLevel);
+            setTranslateY(getTranslateY()+(playery-getTranslateY())*speedRandomizer*GameData.difficultyLevel);
         }
         else if (playerx>getTranslateX() & playery<getTranslateY()){
-            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*Zombies.difficultyLevel);
-            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateX(getTranslateX()+(playerx-getTranslateX())*speedRandomizer*GameData.difficultyLevel);
+            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*GameData.difficultyLevel);
         }
         else if (playerx<getTranslateX() & playery<getTranslateY()){
-            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*Zombies.difficultyLevel);
-            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*Zombies.difficultyLevel);
+            setTranslateX(getTranslateX()-(getTranslateX()-playerx)*speedRandomizer*GameData.difficultyLevel);
+            setTranslateY(getTranslateY()-(getTranslateY()-playery)*speedRandomizer*GameData.difficultyLevel);
         }
         
     }

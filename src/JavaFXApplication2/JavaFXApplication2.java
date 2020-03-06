@@ -28,7 +28,7 @@ public class JavaFXApplication2 extends Application {
     
     
     boolean gameOverscreen=false;
-
+    Random rnd = new Random();
     Toolkit toolkit;
     int ammoleft=7;    
     public Media spawnZombieSound = new Media(getClass().getResource("Resources/audio/spawnzombiesound.mp3").toString());
@@ -44,10 +44,11 @@ public class JavaFXApplication2 extends Application {
         return s;
         }
     
-    Label scoreLabel = new Label("You Survived "+Integer.toString(Zombies.roundNumber-1)+" Rounds");
+    Label scoreLabel;
     
     private void gameOver(){
         root.getChildren().clear();
+        scoreLabel = new Label("You Survived "+Integer.toString((GameData.roundNumber-1))+" Rounds");
         Image gameOverimage = new Image(getClass().getResource("Resources/images/gameOver.png").toString());
         ImagePattern gameOverimagePattern = new ImagePattern(gameOverimage);
         gameOver.setFill(gameOverimagePattern);
@@ -61,8 +62,8 @@ public class JavaFXApplication2 extends Application {
         root.getChildren().add(exitGame);
         gameOverscreen=true;
         }
-    Random rnd = new Random();
-    //Character(,int y,int w, int h,String type, Color color)
+    
+    
     Character character;
     void spawnTrap(){
         int x=rnd.nextInt(WIDTH);
@@ -86,7 +87,7 @@ public class JavaFXApplication2 extends Application {
         
     Image gamePlayGround = new Image(getClass().getResource("Resources/images/gameBackGround.jpg").toString());
     ImagePattern gamePlayGroundPattern = new ImagePattern(gamePlayGround);
-    
+
     RadioButton easy = new RadioButton();
     RadioButton normal = new RadioButton();
     RadioButton hard = new RadioButton();
@@ -95,13 +96,13 @@ public class JavaFXApplication2 extends Application {
     Label easyLabel = new Label("easy");
     Label normalLabel = new Label("normal");
     Label hardLabel = new Label("hard");
+    Label instructions = new Label("W -> Move Up\nA -> Move Left\nS -> Move Down\nD -> Move Right\nSPACEBAR -> shoot\nLeft click and hold down mouse to aim");
     
     Font font = Font.font("Verdana",20);
     
     private void StartMenu(){
         root.getChildren().clear();
         Image StartMenuImage = new Image(getClass().getResource("Resources/images/StartMenuImage.png").toString());
-        
         ImagePattern StartMenuImagePattern = new ImagePattern(StartMenuImage);
         StartMenuScreen.setFill(StartMenuImagePattern);
         easy.setToggleGroup(group);
@@ -115,6 +116,7 @@ public class JavaFXApplication2 extends Application {
         root.getChildren().add(normalLabel);
         root.getChildren().add(hard);
         root.getChildren().add(hardLabel);
+        root.getChildren().add(instructions);
         easy.setTranslateX(WIDTH/2-100);
         easy.setTranslateY(HEIGHT/2);
         easyLabel.setTranslateX(WIDTH/2-250);
@@ -133,6 +135,9 @@ public class JavaFXApplication2 extends Application {
         hardLabel.setFont(font);
         hardLabel.setTranslateX(WIDTH/2-250);
         hardLabel.setTranslateY(HEIGHT/2+80);
+        instructions.setTextFill(Color.WHITE);
+        instructions.setTranslateX(10);
+        instructions.setTranslateY(10);
         StartGame.setLayoutX(WIDTH/2+100);
         StartGame.setLayoutY(HEIGHT/2+50);
         StartMenuOn = true;
@@ -160,21 +165,24 @@ public class JavaFXApplication2 extends Application {
         return root.getChildren().stream().filter(n -> !exitGame.equals(n)&!restart.equals(n)& !ammoleftlabel.equals(n) & !gameBackground.equals(n)).map(n -> (Character)n).collect(Collectors.toList());
         }
     
+    Image playerImage = new Image(getClass().getResource("Resources/images/Survivor_by_Riley_Gombart_right.png").toString());
+        ImagePattern playerimagePattern = new ImagePattern(playerImage);
+        
     
     private Parent createContent(){
         
         root.setPrefSize(WIDTH,HEIGHT);
         root.getChildren().add(player);
-        //Font font = Font.font("Verdana",20);
-        ammoleftlabel.setMaxSize(50, 100);
-        ammoleftlabel.setTranslateX(WIDTH-100);
+        player.setFill(playerimagePattern);
+        
+        ammoleftlabel.setTranslateX(WIDTH-110);
         ammoleftlabel.setTranslateY(HEIGHT-50);
         ammoleftlabel.setFont(font);
         boolean qwe =root.getChildren().contains(ammoleftlabel);
         
         if(qwe==false){
             root.getChildren().add(ammoleftlabel);
-            }
+        }
         
         AnimationTimer timer =new AnimationTimer(){
             @Override
@@ -189,11 +197,11 @@ public class JavaFXApplication2 extends Application {
     
     private void nextLevel(){
         playZombieSpawnSound.stop();
-        for(int i=0;i<(5+Zombies.roundNumber);i++){
+        for(int i=0;i<(5+GameData.roundNumber);i++){
             Character s = createZombie(i);
             root.getChildren().add(s);
         }
-        for (int i=0;i<Zombies.roundNumber;i++){
+        for (int i=0;i<GameData.roundNumber;i++){
             spawnTrap();
         }
         playZombieSpawnSound.play();
@@ -205,15 +213,18 @@ public class JavaFXApplication2 extends Application {
             {
             StartMenu();
             }
-        if (StartMenuOn==true){return;}
+        if (StartMenuOn==true){
+            return;
+        }
         playStartMenuMusic.dispose();
 
-        if (player.dead==true & gameOverscreen==false)
-            {
+        if (player.dead==true & gameOverscreen==false){
             gameOver();
             return;
             }
-        if (gameOverscreen == true){return;}
+        if (gameOverscreen == true){
+            return;
+        }
         
         PlayerLocation.xx=player.getTranslateX();
         PlayerLocation.yy=player.getTranslateY();
@@ -221,7 +232,7 @@ public class JavaFXApplication2 extends Application {
         characters().forEach(s ->{
             switch(s.type){
                 case "zombie":
-                    Zombies.zombiecount=Zombies.zombiecount+1;
+                    GameData.zombiecount=GameData.zombiecount+1;
                     s.moveZombie();
                     
                     if(s.getBoundsInParent().intersects(player.getBoundsInParent()))
@@ -265,9 +276,6 @@ public class JavaFXApplication2 extends Application {
                 case "Trap":{
                     if (s.getBoundsInParent().intersects(player.getBoundsInParent()))
                         {
-                        //s.dead=true;
-                        //root.getChildren().remove(s);
-                        //s=null;
                         player.dead=true;
                         
                         }
@@ -278,13 +286,13 @@ public class JavaFXApplication2 extends Application {
                 }
         });
         
-        if (Zombies.zombiecount==0)
+        if (GameData.zombiecount==0)
             { 
             nextLevel();
-            Zombies.roundNumber++;
+            GameData.roundNumber=GameData.roundNumber+1;
             }
         
-        Zombies.zombiecount=0;
+        GameData.zombiecount=0;
         
         if(ammoleft == 0){
             if (reloading ==false){
@@ -292,10 +300,10 @@ public class JavaFXApplication2 extends Application {
                 reloading = true;
                 }
             timeElapsedReloading = System.nanoTime()-startReloadTime;
-            Font font = Font.font("Verdana",10);
+            Font font = Font.font("Verdana",20);
             ammoleftlabel.setFont(font);
-            ammoleftlabel.setText("Reloading");
-            if (timeElapsedReloading*0.000000001>5){
+            ammoleftlabel.setText("Reloading...");
+            if (timeElapsedReloading*0.000000001>3.5){
                 ammoleft=7;reloading=false;}
             return;
             }
@@ -321,18 +329,30 @@ public class JavaFXApplication2 extends Application {
                 case A:
                     if(player.getTranslateX()>0)
                         {player.moveLeft();}
+                    playerImage = new Image(getClass().getResource("Resources/images/Survivor_by_Riley_Gombart_left.png").toString());
+                    playerimagePattern = new ImagePattern(playerImage);
+                    player.setFill(playerimagePattern);
                     break;
                 case D:
-                    if(player.getTranslateX()<WIDTH)
-                    {player.moveRight();}
+                    if(player.getTranslateX()<WIDTH-player.getWidth())
+                        {player.moveRight();}
+                    playerImage = new Image(getClass().getResource("Resources/images/Survivor_by_Riley_Gombart_right.png").toString());
+                    playerimagePattern = new ImagePattern(playerImage);
+                    player.setFill(playerimagePattern);
                     break;
                 case W:
                     if(player.getTranslateY()>0)
-                    {player.moveUp();}
+                        {player.moveUp();}
+                    playerImage = new Image(getClass().getResource("Resources/images/Survivor_by_Riley_Gombart_up.png").toString());
+                    playerimagePattern = new ImagePattern(playerImage);
+                    player.setFill(playerimagePattern);
                     break;
                 case S:
-                    if(player.getTranslateY()<HEIGHT)
-                    {player.moveDown();}
+                    if(player.getTranslateY()<HEIGHT-player.getWidth())
+                        {player.moveDown();}
+                    playerImage = new Image(getClass().getResource("Resources/images/Survivor_by_Riley_Gombart_down.png").toString());
+                    playerimagePattern = new ImagePattern(playerImage);
+                    player.setFill(playerimagePattern);
                     break;
                 case SPACE:
                     shoot(player);
@@ -347,27 +367,32 @@ public class JavaFXApplication2 extends Application {
             player.dead=false;
             gameOverscreen=false;
             player = new Character(300,500,40,40,"player",Color.BLUE);
+            player.setFill(playerimagePattern);
             root.getChildren().add(gameBackground);
             root.getChildren().add(player);
             ammoleft=7;
-            Zombies.roundNumber=0;
+            GameData.roundNumber=1;
         });
+        
         StartGame.setOnAction(e -> {
+            
+            if(hard.isSelected() || easy.isSelected() || normal.isSelected()){
             root.getChildren().clear();
             if (easy.isSelected()){
-                Zombies.difficultyLevel=1;
+                GameData.difficultyLevel=1;
             }
             if (normal.isSelected()){
-                Zombies.difficultyLevel=2;
+                GameData.difficultyLevel=2;
             }
             if (hard.isSelected()){
-                Zombies.difficultyLevel=3;
+                GameData.difficultyLevel=3;
             }
             player = new Character(300,500,40,40,"player",Color.BLUE);
+            player.setFill(playerimagePattern);
             root.getChildren().add(gameBackground);
             root.getChildren().add(player);
             StartMenuOn=false;
-            StartMenuShown=true;
+            StartMenuShown=true;}
         });
         
         exitGame.setOnAction(new EventHandler<ActionEvent>() {
@@ -383,24 +408,31 @@ public class JavaFXApplication2 extends Application {
         
     }
     
-        public Media shootingSound = new Media(getClass().getResource("Resources/audio/shooting.mp3").toString());
-        MediaPlayer playshootingSound =new MediaPlayer(shootingSound);
-        Character bullet;
-        boolean reloading = false;
-        long startReloadTime;
-        long timeElapsedReloading;
+    public Media shootingSound = new Media(getClass().getResource("Resources/audio/shooting.mp3").toString());
+    MediaPlayer playshootingSound =new MediaPlayer(shootingSound);
+    
+    public Media emptyClipSound = new Media(getClass().getResource("Resources/audio/emptyClip.wav").toString());
+    MediaPlayer playEmptyClipSound =new MediaPlayer(emptyClipSound);
+    
+    Character bullet;
+    boolean reloading = false;
+    long startReloadTime;
+    long timeElapsedReloading;
         
-        public void shoot(Character shooter){
+    public void shoot(Character shooter){
 
-            if(ammoleft == 0){
-                if (reloading ==false){
-                    startReloadTime = System.nanoTime(); reloading = true;}
-                timeElapsedReloading = System.nanoTime()-startReloadTime;
-                if (timeElapsedReloading*0.000000001>5){
-                    ammoleft=7;reloading=false;
-                }
-                return;
+        if(ammoleft == 0){
+            playEmptyClipSound.stop();
+            playEmptyClipSound.play();
+            if (reloading ==false){
+                startReloadTime = System.nanoTime(); reloading = true;
             }
+            timeElapsedReloading = System.nanoTime()-startReloadTime;
+            if (timeElapsedReloading*0.000000001>5){
+                ammoleft=7;reloading=false;
+            }
+            return;
+        }
             
         root.setOnMouseDragged(e -> {
             MouseXYdragged.xx = e.getX();
@@ -421,7 +453,7 @@ public class JavaFXApplication2 extends Application {
             playshootingSound.stop();
             playshootingSound.play();
             ammoleft--;
-            }
+        }
     }
 
         
